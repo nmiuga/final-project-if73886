@@ -27,7 +27,7 @@ struct YearDetailView: View {
             .padding()
         }
         .scrapbookBackground()
-        .navigationTitle("\(scrapbookYear.year)")
+        .navigationTitle(scrapbookYear.yearText)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 NavigationLink {

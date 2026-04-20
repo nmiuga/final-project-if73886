@@ -11,9 +11,9 @@ import SwiftData
 final class YearbookHomeViewModel: ObservableObject {
     @Published var newYearText = ""
     @Published var newYearTitle = ""
-    @Published var selectedThemeName = "rose"
+    @Published var selectedThemeName = "blue"
 
-    let themeNames = ["rose", "lavender", "sage", "sky", "butter"]
+    let themeNames = YearbookTheme.colorSchemeNames
 
     func createYear(modelContext: ModelContext) {
         let trimmedYear = newYearText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -41,6 +41,6 @@ final class YearbookHomeViewModel: ObservableObject {
     private func resetDraft() {
         newYearText = ""
         newYearTitle = ""
-        selectedThemeName = "rose"
+        selectedThemeName = "blue"
     }
 }

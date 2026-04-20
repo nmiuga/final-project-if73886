@@ -36,7 +36,7 @@ final class ScrapbookYear {
         title: String? = nil,
         coverSubtitle: String = "A year of little moments",
         coverIcon: String = "sparkles",
-        themeName: String = "rose"
+        themeName: String = "blue"
     ) {
         self.id = UUID()
         self.year = year
@@ -45,6 +45,10 @@ final class ScrapbookYear {
         self.coverIcon = coverIcon
         self.themeName = themeName
         self.createdAt = Date()
+    }
+
+    var yearText: String {
+        String(year)
     }
 
     var sortedEntries: [JournalEntry] {

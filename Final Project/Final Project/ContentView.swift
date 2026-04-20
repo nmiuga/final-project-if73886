@@ -11,6 +11,7 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \ScrapbookYear.year, order: .reverse) private var scrapbookYears: [ScrapbookYear]
+    @AppStorage(YearbookTheme.colorSchemeKey) private var selectedColorScheme = "blue"
 
     var body: some View {
         TabView {
@@ -34,7 +35,7 @@ struct ContentView: View {
                     Label("Search", systemImage: "magnifyingglass")
                 }
         }
-        .tint(YearbookTheme.rose)
+        .tint(YearbookTheme.color(for: selectedColorScheme))
         .task {
             SampleData.seedIfNeeded(modelContext: modelContext, existingYears: scrapbookYears)
         }

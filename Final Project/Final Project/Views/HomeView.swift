@@ -11,6 +11,8 @@ struct HomeView: View {
     @Query(sort: \ScrapbookYear.year, order: .reverse) private var scrapbookYears: [ScrapbookYear]
     @StateObject private var viewModel = YearbookHomeViewModel()
     @State private var isShowingNewYear = false
+    @State private var isShowingColorPicker = false
+    @AppStorage(YearbookTheme.colorSchemeKey) private var selectedColorScheme = "blue"
 
     var body: some View {
         NavigationStack {
@@ -21,7 +23,7 @@ struct HomeView: View {
                             .font(.largeTitle.bold())
                             .foregroundStyle(YearbookTheme.ink)
 
-                        Text("A soft place for memories, favorite things, goals, highlights, and monthly recaps.")
+                        Text("A  place for memories, favorite things, goals, highlights, and monthly recaps.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -63,6 +65,15 @@ struct HomeView: View {
             .scrapbookBackground()
             .navigationTitle("Yearbook")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        isShowingColorPicker = true
+                    } label: {
+                        Image(systemName: "paintpalette.fill")
+                    }
+                    .accessibilityLabel("Change color scheme")
+                }
+
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         isShowingNewYear = true
@@ -73,6 +84,67 @@ struct HomeView: View {
             }
             .sheet(isPresented: $isShowingNewYear) {
                 NewYearView(viewModel: viewModel)
+            }
+            .sheet(isPresented: $isShowingColorPicker) {
+                ColorSchemePickerView(selectedColorScheme: $selectedColorScheme)
+            }
+        }
+    }
+}
+
+struct ColorSchemePickerView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selectedColorScheme: String
+
+    private let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 14) {
+                    ForEach(YearbookTheme.colorSchemeNames, id: \.self) { colorName in
+                        Button {
+                            selectedColorScheme = colorName
+                        } label: {
+                            VStack(spacing: 10) {
+                                Circle()
+                                    .fill(YearbookTheme.color(for: colorName))
+                                    .frame(width: 48, height: 48)
+                                    .overlay {
+                                        if selectedColorScheme == colorName {
+                                            Image(systemName: "checkmark")
+                                                .font(.headline.bold())
+                                                .foregroundStyle(.white)
+                                        }
+                                    }
+
+                                Text(colorName.capitalized)
+                                    .font(.headline)
+                                    .foregroundStyle(YearbookTheme.ink)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 18)
+                            .background(
+                                YearbookTheme.color(for: colorName).opacity(selectedColorScheme == colorName ? 0.18 : 0.08)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding()
+            }
+            .scrapbookBackground()
+            .navigationTitle("Color Scheme")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
             }
         }
     }
@@ -89,17 +161,9 @@ struct NewYearView: View {
                 Section("Cover") {
                     TextField("Year, like 2026", text: $viewModel.newYearText)
                         .keyboardType(.numberPad)
-                    TextField("Title, like My Softest Year", text: $viewModel.newYearTitle)
+                    TextField("Title, like My AdventurousYear", text: $viewModel.newYearTitle)
                 }
 
-                Section("Theme") {
-                    Picker("Theme", selection: $viewModel.selectedThemeName) {
-                        ForEach(viewModel.themeNames, id: \.self) { themeName in
-                            Text(themeName.capitalized).tag(themeName)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                }
             }
             .navigationTitle("New Scrapbook")
             .toolbar {

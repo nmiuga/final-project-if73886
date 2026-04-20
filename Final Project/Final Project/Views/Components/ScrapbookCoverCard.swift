@@ -9,7 +9,7 @@ struct ScrapbookCoverCard: View {
     let scrapbookYear: ScrapbookYear
 
     var body: some View {
-        let theme = YearbookTheme.color(for: scrapbookYear.themeName)
+        let theme = YearbookTheme.rose
 
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 8, style: .continuous)
@@ -33,7 +33,7 @@ struct ScrapbookCoverCard: View {
                 }
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(scrapbookYear.title)
+                    Text(verbatim: scrapbookYear.title)
                         .font(.title2.bold())
                         .foregroundStyle(YearbookTheme.ink)
                         .lineLimit(2)
@@ -45,7 +45,7 @@ struct ScrapbookCoverCard: View {
                 }
 
                 HStack(spacing: 8) {
-                    TagChip(text: "\(scrapbookYear.year)", color: theme)
+                    TagChip(text: scrapbookYear.yearText, color: theme)
                     if scrapbookYear.lockedEntriesCount > 0 {
                         TagChip(text: "\(scrapbookYear.lockedEntriesCount) private", color: YearbookTheme.lavender)
                     }

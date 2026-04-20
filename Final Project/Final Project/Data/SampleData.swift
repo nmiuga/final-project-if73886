@@ -5,8 +5,11 @@
 
 import Foundation
 import SwiftData
+import UIKit
 
 enum SampleData {
+    private static let celebrationSubtitle = "Graduation, Celebrations and Spending Precious Time with my Friends"
+
     static func seedIfNeeded(modelContext: ModelContext, existingYears: [ScrapbookYear]) {
         let cleanedYears = removeOldSampleContent(modelContext: modelContext, existingYears: existingYears)
 
@@ -22,6 +25,12 @@ enum SampleData {
         var remainingYears: [ScrapbookYear] = []
 
         for scrapbookYear in existingYears {
+            let commaFormattedYear = NumberFormatter.localizedString(from: NSNumber(value: scrapbookYear.year), number: .decimal)
+
+            if scrapbookYear.title == commaFormattedYear {
+                scrapbookYear.title = scrapbookYear.yearText
+            }
+
             let isOldKeepsakeSample = scrapbookYear.year == currentYear - 1
                 && scrapbookYear.title == "\(currentYear - 1) Keepsakes"
 
@@ -34,7 +43,12 @@ enum SampleData {
                 modelContext.delete(entry)
             }
 
-            if scrapbookYear.year == currentYear && scrapbookYear.title == "\(currentYear) Soft Launch" {
+            if scrapbookYear.year == currentYear && (scrapbookYear.title == "\(currentYear) Soft Launch" || scrapbookYear.title == "\(currentYear): Celebration Year" || scrapbookYear.title == "Celebration Year") {
+                scrapbookYear.title = "Celebration Year"
+                scrapbookYear.coverSubtitle = celebrationSubtitle
+                scrapbookYear.themeName = "blue"
+                replaceBelizeSampleEntry(in: scrapbookYear, modelContext: modelContext)
+                replaceGraduationSampleEntry(in: scrapbookYear, modelContext: modelContext)
                 replaceSampleFavorites(in: scrapbookYear, modelContext: modelContext)
             }
 
@@ -42,6 +56,64 @@ enum SampleData {
         }
 
         return remainingYears
+    }
+
+    private static func replaceBelizeSampleEntry(in scrapbookYear: ScrapbookYear, modelContext: ModelContext) {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        let belizeEntry = makeBelizeAdventureEntry(year: currentYear)
+
+        if let index = scrapbookYear.entries.firstIndex(where: { $0.title == "A slow Sunday" || $0.title == "Belize adventure" }) {
+            let existingEntry = scrapbookYear.entries[index]
+            existingEntry.title = belizeEntry.title
+            existingEntry.bodyText = belizeEntry.bodyText
+            existingEntry.date = belizeEntry.date
+            existingEntry.mood = belizeEntry.mood
+            existingEntry.tags = belizeEntry.tags
+            existingEntry.photoSystemNames = belizeEntry.photoSystemNames
+
+            for photo in existingEntry.photos {
+                modelContext.delete(photo)
+            }
+
+            for photo in belizeEntry.photos {
+                modelContext.insert(photo)
+                photo.entry = existingEntry
+            }
+
+            existingEntry.photos = belizeEntry.photos
+        } else {
+            modelContext.insert(belizeEntry)
+            scrapbookYear.entries.append(belizeEntry)
+        }
+    }
+
+    private static func replaceGraduationSampleEntry(in scrapbookYear: ScrapbookYear, modelContext: ModelContext) {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        let graduationEntry = makeGraduationPhotoEntry(year: currentYear)
+
+        if let index = scrapbookYear.entries.firstIndex(where: { $0.title == "First picnic of the year" || $0.title == "Graduation photos" }) {
+            let existingEntry = scrapbookYear.entries[index]
+            existingEntry.title = graduationEntry.title
+            existingEntry.bodyText = graduationEntry.bodyText
+            existingEntry.date = graduationEntry.date
+            existingEntry.mood = graduationEntry.mood
+            existingEntry.tags = graduationEntry.tags
+            existingEntry.photoSystemNames = graduationEntry.photoSystemNames
+
+            for photo in existingEntry.photos {
+                modelContext.delete(photo)
+            }
+
+            for photo in graduationEntry.photos {
+                modelContext.insert(photo)
+                photo.entry = existingEntry
+            }
+
+            existingEntry.photos = graduationEntry.photos
+        } else {
+            modelContext.insert(graduationEntry)
+            scrapbookYear.entries.append(graduationEntry)
+        }
     }
 
     private static func replaceSampleFavorites(in scrapbookYear: ScrapbookYear, modelContext: ModelContext) {
@@ -69,29 +141,15 @@ enum SampleData {
         let currentYear = Calendar.current.component(.year, from: Date())
         let thisYear = ScrapbookYear(
             year: currentYear,
-            title: "\(currentYear) Soft Launch",
-            coverSubtitle: "Coffee dates, tiny wins, and becoming myself",
+            title: "Celebration Year",
+            coverSubtitle: celebrationSubtitle,
             coverIcon: "heart.text.square.fill",
-            themeName: "rose"
+            themeName: "blue"
         )
 
         thisYear.entries = [
-            JournalEntry(
-                title: "A slow Sunday",
-                bodyText: "Made pancakes, pressed flowers into a book, and wrote down three things I want to remember.",
-                date: YearbookDate.date(year: currentYear, month: 2, day: 11),
-                mood: "Cozy",
-                tags: ["home", "weekend", "quiet"],
-                photoSystemNames: ["camera.fill", "leaf.fill"]
-            ),
-            JournalEntry(
-                title: "First picnic of the year",
-                bodyText: "The blanket kept folding in the wind, but the strawberries were perfect.",
-                date: YearbookDate.date(year: currentYear, month: 4, day: 15),
-                mood: "Sunny",
-                tags: ["friends", "spring"],
-                photoSystemNames: ["sun.max.fill", "basket.fill"]
-            )
+            makeBelizeAdventureEntry(year: currentYear),
+            makeGraduationPhotoEntry(year: currentYear)
         ]
 
         thisYear.favorites = [
@@ -123,5 +181,51 @@ enum SampleData {
         ]
 
         return [thisYear]
+    }
+
+    private static func makeBelizeAdventureEntry(year: Int) -> JournalEntry {
+        let entry = JournalEntry(
+            title: "Belize adventure",
+            bodyText: "We stopped in Belize today! We got on a bus and went cave tubing and cliff jumping! It was so relaxing, and just overall, such a good time!",
+            date: YearbookDate.date(year: year, month: 3, day: 10),
+            mood: "Relaxed",
+            tags: ["belize", "travel", "adventure"],
+            photoSystemNames: ["water.waves", "figure.pool.swim"]
+        )
+
+        if let imageData = bundledImageData(named: "IMG_6634") {
+            let photo = JournalPhoto(imageData: imageData)
+            photo.entry = entry
+            entry.photos = [photo]
+        }
+
+        return entry
+    }
+
+    private static func makeGraduationPhotoEntry(year: Int) -> JournalEntry {
+        let entry = JournalEntry(
+            title: "Graduation photos",
+            bodyText: "Today my friends and I took graduation photos!! After, we went to get ice cream is was such a fun day to celebrate with my friends!!",
+            date: YearbookDate.date(year: year, month: 3, day: 22),
+            mood: "Joyful",
+            tags: ["graduation", "friends", "photos"],
+            photoSystemNames: ["camera.fill"]
+        )
+
+        if let imageData = bundledImageData(named: "graduation-photos") {
+            let photo = JournalPhoto(imageData: imageData)
+            photo.entry = entry
+            entry.photos = [photo]
+        }
+
+        return entry
+    }
+
+    private static func bundledImageData(named name: String) -> Data? {
+        if let imageURL = Bundle.main.url(forResource: name, withExtension: "jpeg") {
+            return try? Data(contentsOf: imageURL)
+        }
+
+        return UIImage(named: name)?.jpegData(compressionQuality: 0.9)
     }
 }

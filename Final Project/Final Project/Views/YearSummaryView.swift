@@ -11,7 +11,7 @@ struct YearSummaryView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                SectionTitle(title: "\(scrapbookYear.year) Highlights", subtitle: "A little summary page for the year")
+                SectionTitle(title: "\(scrapbookYear.yearText) Highlights", subtitle: "A little summary page for the year")
 
                 HighlightCard(
                     iconName: "book.pages.fill",
