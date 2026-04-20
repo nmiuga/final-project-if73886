@@ -1,12 +1,17 @@
 # Yearbook
 
-Yearbook is a cozy SwiftUI scrapbook app for saving memories by year. Each yearly scrapbook can include journal entries, photos, favorites, goals, highlights, and a timeline of moments. The app is designed to feel personal, nostalgic, and easy to customize, with soft cards, rounded details, and selectable color schemes.
+Yearbook is a cozy SwiftUI scrapbook app for saving memories by year. Each yearly scrapbook can include journal entries, photos, favorites, goals, highlights and a timeline of moments documented. The app is designed to feel personal, nostalgic, and easy to customize, with soft cards, rounded details, and selectable color schemes.
 
 ## Screenshots
 
-| Home | Year Detail | Timeline |
-| --- | --- | --- |
-| ![Yearbook home screen](assets/screenshot-home.png) | ![Yearbook year detail screen](assets/screenshot-year-detail.png) | ![Yearbook timeline screen](assets/screenshot-timeline.png) |
+### Home
+![Yearbook home screen](assets/screenshot-home.png)
+
+### Year Detail
+![Yearbook year detail screen](assets/screenshot-year-detail.png)
+
+### Timeline
+![Yearbook timeline screen](assets/screenshot-timeline.png)
 
 ## Features
 
